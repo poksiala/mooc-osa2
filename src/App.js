@@ -1,5 +1,12 @@
 import React from 'react'
 
+const Yhteensa = ({osat}) => {
+  const calc = (l) => l.map(o => o.tehtavia).reduce((a, b) => a + b, 0)
+
+  return (
+    <p>yhteensä {calc(osat)} tehtävää</p>
+  )
+}
 
 const Otsikko = ({text}) => <h1>{text}</h1>
 
@@ -19,6 +26,7 @@ const Kurssi = ({kurssi}) => {
     <div>
       <Otsikko text={kurssi.nimi} />
       <Sisalto osat={kurssi.osat} />
+      <Yhteensa osat={kurssi.osat} />
     </div>
   )
 }
