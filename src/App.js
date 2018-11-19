@@ -12,10 +12,10 @@ const CountryDetails = ({country}) => {
   )
 }
 
-const CountryListing = ({countries}) => {
+const CountryListing = ({handler, countries}) => {
   return(
     <div>
-      {countries.map(c => <div key={c.alpha3Code}>{c.name}</div>)}
+      {countries.map(c => <div onClick={handler(c.name)} key={c.alpha3Code}>{c.name}</div>)}
     </div>
   )
 }
@@ -50,16 +50,19 @@ class App extends React.Component {
     this.setState({filter: event.target.value})
   }
 
-  render() {
+  setFilter = (str) => {
+    return(() => {this.setState({filter: str})})
+  }
 
+  render() {
     const filteredCountries = this.state.countries.filter(p => 
-      p.name.toLowerCase().includes(this.state.filter.toLowerCase()) )
+      p.name.toLowerCase().includes(this.state.filter.toLowerCase()))
 
     const content = (filteredCountries.length > 10) ?
       <p>too many matches, specify another filter</p> :
       (filteredCountries.length === 1) ?
         <CountryDetails country={filteredCountries[0]} /> :
-        <CountryListing countries={filteredCountries} />
+        <CountryListing handler={this.setFilter} countries={filteredCountries} />
 
     return (
       <div>
