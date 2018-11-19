@@ -1,15 +1,17 @@
 import React from 'react';
 
-const Person = ({person}) => <li>{person.name}</li>
+const Person = ({person}) => <tr><td>{person.name}</td><td>{person.number}</td></tr>
 
 const Persons = ({persons}) => {
   const personList = persons.map(person =>
     <Person key={person.name} person={person} />)
 
   return (
-    <ul>
-      {personList}
-    </ul>
+    <table>
+      <tbody>
+        {personList}
+      </tbody>
+    </table>
   )
 }
 
@@ -18,9 +20,10 @@ class App extends React.Component {
     super(props)
     this.state = {
       persons: [
-        { name: 'Arto Hellas' }
+        { name: 'Arto Hellas', number: '444 444444' }
       ],
-      newName: ''
+      newName: '',
+      newNumber: ''
     }
   }
   
@@ -28,22 +31,26 @@ class App extends React.Component {
     event.preventDefault()
     if (this.state.persons.filter(p => p.name === this.state.newName).length === 0) {
       const personObject = {
-        name: this.state.newName
+        name: this.state.newName,
+        number: this.state.newNumber
       }
       
       const persons = this.state.persons.concat(personObject)
 
-      this.setState({persons, newName: ''})
+      this.setState({persons, newName: '', newNumber: ''})
     } else {
-      this.setState({newName: ''})
+      this.setState({newName: '', newNumber: ''})
     }
-    
-    
   }
 
   handleNameChange = (event) => {
     event.preventDefault()
     this.setState({newName: event.target.value})
+  }
+
+  handleNumberChange = (event) => {
+    event.preventDefault()
+    this.setState({newNumber: event.target.value})
   }
 
   render() {
@@ -55,6 +62,12 @@ class App extends React.Component {
             nimi: <input
               value={this.state.newName}
               onChange={this.handleNameChange} />
+          </div>
+          <div>
+            numero: <input
+              value={this.state.newNumber}
+              onChange={this.handleNumberChange}
+            />
           </div>
           <div>
             <button type="submit">lisää</button>
