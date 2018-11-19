@@ -57,7 +57,8 @@ class App extends React.Component {
 
   addPerson = (event) => {
     event.preventDefault()
-    if (this.state.persons.filter(p => p.name === this.state.newName).length === 0) {
+    const namesakes = this.state.persons.filter(p => p.name === this.state.newName)
+    if (namesakes.length === 0) {
       const personObject = {
         name: this.state.newName,
         number: this.state.newNumber,
@@ -74,8 +75,29 @@ class App extends React.Component {
         })
 
     } else {
-      this.setState({newName: '', newNumber: ''})
-    }
+
+      if (window.confirm(`Vaihda henkilön ${namesakes[0].name} numero?`)) {
+        const personObject = {
+          name: namesakes[0].name,
+          id: namesakes[0].id,
+          number: this.state.newNumber
+        }
+
+        personService.update(personObject)
+          .then(response => {
+            this.setState({
+              persons: this.state.persons.map((p) => {
+                return (namesakes[0].id === p.id) ? response.data : p
+              }),
+              newName: '',
+              newNumber: ''
+            })
+          })
+        } else {
+          this.setState({newName: '', newNumber: ''})
+        }
+      }
+    
   }
 
   delPerson = (person) => {
