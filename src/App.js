@@ -1,11 +1,19 @@
 import React from 'react';
 import personService from './services/persons'
 
-const Person = ({person}) => <tr><td>{person.name}</td><td>{person.number}</td></tr>
+const Person = ({delHandler, person}) => {
+  return (
+    <tr>
+      <td>{person.name}</td>
+      <td>{person.number}</td>
+      <td><button onClick={delHandler(person)}>Poista</button></td>
+    </tr>
+  )
+}
 
-const Persons = ({persons}) => {
+const Persons = ({delHandler, persons}) => {
   const personList = persons.map(person =>
-    <Person key={person.name} person={person} />)
+    <Person delHandler={delHandler} key={person.name} person={person} />)
 
   return (
     <table>
@@ -36,6 +44,10 @@ class App extends React.Component {
     }
   }
   
+  biggestId() {
+    return this.state.persons.reduce((a, b) => (a < b.id) ? b.id : a, 0)
+  }
+
   componentDidMount() {
     personService.getAll()
       .then(response => {
@@ -49,7 +61,7 @@ class App extends React.Component {
       const personObject = {
         name: this.state.newName,
         number: this.state.newNumber,
-        id: this.state.persons.length + 1 
+        id: this.biggestId() + 1 
       }
       
       personService.create(personObject)
@@ -64,6 +76,20 @@ class App extends React.Component {
     } else {
       this.setState({newName: '', newNumber: ''})
     }
+  }
+
+  delPerson = (person) => {
+    return (
+      () => {
+        if (window.confirm(`poistetaanko ${person.name}?`)) {
+          personService.del(person.id).then(
+            this.setState({
+              persons: this.state.persons.filter((p) => p.id !== person.id)
+            })
+          )
+        }
+      }
+    )
   }
 
   handleNameChange = (event) => {
@@ -109,7 +135,7 @@ class App extends React.Component {
           </div>
         </form>
         <h2>Numerot</h2>
-        <Persons persons={filteredPersons} />
+        <Persons delHandler={this.delPerson} persons={filteredPersons} />
       </div>
     )
   }
