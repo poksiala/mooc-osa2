@@ -1,28 +1,24 @@
 import React from 'react';
 import axios from 'axios'
 
-const CountryDetails = ({country}) => {
-  return(
-    <div>
-      <h2>{country.name}</h2>
-      <p>capital: {country.capital}</p>
-      <p>population: {country.population}</p>
-      <img src={country.flag} alt={country.name} />
-    </div>
-  )
-}
+const Person = ({person}) => <tr><td>{person.name}</td><td>{person.number}</td></tr>
 
-const CountryListing = ({handler, countries}) => {
-  return(
-    <div>
-      {countries.map(c => <div onClick={handler(c.name)} key={c.alpha3Code}>{c.name}</div>)}
-    </div>
+const Persons = ({persons}) => {
+  const personList = persons.map(person =>
+    <Person key={person.name} person={person} />)
+
+  return (
+    <table>
+      <tbody>
+        {personList}
+      </tbody>
+    </table>
   )
 }
 
 const Filter = ({value, handler}) =>
   <div>
-    find countries: <input
+    rajaa näytettäviä: <input
       value={value}
       onChange={handler}
     />
@@ -33,16 +29,51 @@ class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      countries: [],
+      persons: [],
+      newName: '',
+      newNumber: '',
       filter: ''
     }
   }
   
   componentDidMount() {
-    axios.get('https://restcountries.eu/rest/v2/all')
+    axios.get('http://localhost:3001/persons')
       .then(response => {
-        this.setState({countries: response.data})
+        this.setState({persons: response.data})
       })
+  }
+
+  addPerson = (event) => {
+    event.preventDefault()
+    if (this.state.persons.filter(p => p.name === this.state.newName).length === 0) {
+      const personObject = {
+        name: this.state.newName,
+        number: this.state.newNumber,
+        id: this.state.persons.length + 1 
+      }
+      
+      axios.post('http://localhost:3001/persons', personObject)
+        .then(response => {
+          this.setState({
+            persons: this.state.persons.concat(response.data),
+            newName: '',
+            newNumber: ''
+          })
+        })
+
+    } else {
+      this.setState({newName: '', newNumber: ''})
+    }
+  }
+
+  handleNameChange = (event) => {
+    event.preventDefault()
+    this.setState({newName: event.target.value})
+  }
+
+  handleNumberChange = (event) => {
+    event.preventDefault()
+    this.setState({newNumber: event.target.value})
   }
 
   handleFilterChange = (event) => {
@@ -50,24 +81,35 @@ class App extends React.Component {
     this.setState({filter: event.target.value})
   }
 
-  setFilter = (str) => {
-    return(() => {this.setState({filter: str})})
-  }
-
   render() {
-    const filteredCountries = this.state.countries.filter(p => 
-      p.name.toLowerCase().includes(this.state.filter.toLowerCase()))
 
-    const content = (filteredCountries.length > 10) ?
-      <p>too many matches, specify another filter</p> :
-      (filteredCountries.length === 1) ?
-        <CountryDetails country={filteredCountries[0]} /> :
-        <CountryListing handler={this.setFilter} countries={filteredCountries} />
+    const filteredPersons = this.state.persons.filter(p => 
+      p.name.toLowerCase().includes(this.state.filter.toLowerCase()) )
 
     return (
       <div>
+        <h2>Puhelinluettelo</h2>
+        
         <Filter value={this.state.filter} handler={this.handleFilterChange} />
-        {content}
+        <h2>Lisää uusi!</h2>
+        <form onSubmit={this.addPerson}>
+          <div>
+            nimi: <input
+              value={this.state.newName}
+              onChange={this.handleNameChange} />
+          </div>
+          <div>
+            numero: <input
+              value={this.state.newNumber}
+              onChange={this.handleNumberChange}
+            />
+          </div>
+          <div>
+            <button type="submit">lisää</button>
+          </div>
+        </form>
+        <h2>Numerot</h2>
+        <Persons persons={filteredPersons} />
       </div>
     )
   }
