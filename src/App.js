@@ -15,6 +15,15 @@ const Persons = ({persons}) => {
   )
 }
 
+const Filter = ({value, handler}) =>
+  <div>
+    rajaa näytettäviä: <input
+      value={value}
+      onChange={handler}
+    />
+  </div>
+
+
 class App extends React.Component {
   constructor(props) {
     super(props)
@@ -71,13 +80,7 @@ class App extends React.Component {
       <div>
         <h2>Puhelinluettelo</h2>
         
-        <div>
-          rajaa näytettäviä: <input
-            value={this.state.filter}
-            onChange={this.handleFilterChange}
-          />
-        </div>
-
+        <Filter value={this.state.filter} handler={this.handleFilterChange} />
         <h2>Lisää uusi!</h2>
         <form onSubmit={this.addPerson}>
           <div>
