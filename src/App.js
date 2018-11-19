@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios'
+import personService from './services/persons'
 
 const Person = ({person}) => <tr><td>{person.name}</td><td>{person.number}</td></tr>
 
@@ -37,7 +37,7 @@ class App extends React.Component {
   }
   
   componentDidMount() {
-    axios.get('http://localhost:3001/persons')
+    personService.getAll()
       .then(response => {
         this.setState({persons: response.data})
       })
@@ -52,7 +52,7 @@ class App extends React.Component {
         id: this.state.persons.length + 1 
       }
       
-      axios.post('http://localhost:3001/persons', personObject)
+      personService.create(personObject)
         .then(response => {
           this.setState({
             persons: this.state.persons.concat(response.data),
