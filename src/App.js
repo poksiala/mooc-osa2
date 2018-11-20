@@ -13,6 +13,18 @@ const Notification = ({message}) => {
   }
 }
 
+const Error = ({message}) => {
+  if (message === null) {
+    return null
+  } else {
+    return (
+      <div className="error">
+        {message}
+      </div>
+    )
+  }
+}
+
 const Person = ({delHandler, person}) => {
   return (
     <tr>
@@ -44,7 +56,6 @@ const Filter = ({value, handler}) =>
     />
   </div>
 
-
 class App extends React.Component {
   constructor(props) {
     super(props)
@@ -53,7 +64,8 @@ class App extends React.Component {
       newName: '',
       newNumber: '',
       filter: '',
-      message: null
+      message: null,
+      error: null
     }
   }
   
@@ -71,7 +83,7 @@ class App extends React.Component {
   addPerson = (event) => {
     event.preventDefault()
     const namesakes = this.state.persons.filter(p => p.name === this.state.newName)
-    if (namesakes.length === 0) {
+    if (namesakes.length === 0) { // New person
       const personObject = {
         name: this.state.newName,
         number: this.state.newNumber,
@@ -90,7 +102,7 @@ class App extends React.Component {
     } else {
 
       if (window.confirm(`Vaihda henkilön ${namesakes[0].name} numero?`)) {
-        const personObject = {
+        const personObject = { // Update existing
           name: namesakes[0].name,
           id: namesakes[0].id,
           number: this.state.newNumber
@@ -105,8 +117,9 @@ class App extends React.Component {
               newName: '',
               newNumber: ''
             })
+            this.setNotification(`henkilön ${personObject.name} numero päivitettiin onnistuneesti`)
           })
-          .then(this.setNotification(`henkilön ${personObject.name} numero päivitettiin onnistuneesti`))
+          .catch(this.setError(`Henkilöä ${personObject.name} ei löytynyt palvelimelta`))
         } else {
           this.setState({newName: '', newNumber: ''})
         }
@@ -116,6 +129,11 @@ class App extends React.Component {
   setNotification(message) {
     this.setState({message})
     setTimeout(() => this.setState({message: null}), 2000)
+  }
+
+  setError(message) {
+    this.setState({error: message})
+    setTimeout(() => this.setState({error: null}), 2000)
   }
 
   delPerson = (person) => {
@@ -156,6 +174,7 @@ class App extends React.Component {
       <div>
         <h2>Puhelinluettelo</h2>
         <Notification message={this.state.message} />
+        <Error message={this.state.error} />
         <Filter value={this.state.filter} handler={this.handleFilterChange} />
         <h2>Lisää uusi!</h2>
         <form onSubmit={this.addPerson}>
