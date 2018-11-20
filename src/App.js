@@ -1,6 +1,18 @@
 import React from 'react';
 import personService from './services/persons'
 
+const Notification = ({message}) => {
+  if (message === null) {
+    return null
+  } else {
+    return (
+      <div className="notification">
+        {message}
+      </div>
+    )
+  }
+}
+
 const Person = ({delHandler, person}) => {
   return (
     <tr>
@@ -40,7 +52,8 @@ class App extends React.Component {
       persons: [],
       newName: '',
       newNumber: '',
-      filter: ''
+      filter: '',
+      message: null
     }
   }
   
@@ -72,7 +85,7 @@ class App extends React.Component {
             newName: '',
             newNumber: ''
           })
-        })
+        }).then(this.setNotification("Henkilö lisättiin onnistuneesti"))
 
     } else {
 
@@ -93,11 +106,16 @@ class App extends React.Component {
               newNumber: ''
             })
           })
+          .then(this.setNotification(`henkilön ${personObject.name} numero päivitettiin onnistuneesti`))
         } else {
           this.setState({newName: '', newNumber: ''})
         }
       }
-    
+  }
+
+  setNotification(message) {
+    this.setState({message})
+    setTimeout(() => this.setState({message: null}), 2000)
   }
 
   delPerson = (person) => {
@@ -108,7 +126,7 @@ class App extends React.Component {
             this.setState({
               persons: this.state.persons.filter((p) => p.id !== person.id)
             })
-          )
+          ).then(this.setNotification(`Henkilö ${person.name} poistetiin onnistuneesti`))
         }
       }
     )
@@ -137,7 +155,7 @@ class App extends React.Component {
     return (
       <div>
         <h2>Puhelinluettelo</h2>
-        
+        <Notification message={this.state.message} />
         <Filter value={this.state.filter} handler={this.handleFilterChange} />
         <h2>Lisää uusi!</h2>
         <form onSubmit={this.addPerson}>
